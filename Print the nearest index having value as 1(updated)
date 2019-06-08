@@ -1,0 +1,120 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+void build(int t[],int a[],int n,int node,int st,int end,int p)
+{
+    if(st==end)
+    {
+        if(a[st]==1)
+        t[node]=st;
+        else
+        {
+            if(p==1)
+            t[node]=n;
+            else
+            t[node]=-1;
+        }
+    }
+    else
+    {
+        int mid=(st+end)/2;
+        
+        build(t,a,n,2*node+1,st,mid,p);
+        build(t,a,n,2*node+2,mid+1,end,p);
+        
+        if(p==1)
+        t[node]=min(t[2*node+1],t[2*node+2]);
+        else
+        t[node]=max(t[2*node+1],t[2*node+2]);
+    }
+}
+
+
+void up(int t[],int a[],int node,int st,int end,int y,int p)
+{
+    if(st==end)
+    {
+        a[y]+=1;
+        t[node]=st;
+    }
+    else
+    {
+        int m=(st+end)/2;
+        
+        if(st<=y&&y<=m)
+        up(t,a,2*node+1,st,m,y,p);
+        else
+        up(t,a,2*node+2,m+1,end,y,p);
+        
+        if(p==1)
+        t[node]=min(t[2*node+1],t[2*node+2]);
+        else
+        t[node]=max(t[2*node+1],t[2*node+2]);
+    }
+}
+
+int query(int t[],int node,int st,int end,int l,int r,int p)
+{
+    if(st>r||end<l)
+    {
+        if(p==1)
+        return INT_MAX;
+        else
+        return INT_MIN;
+    }
+    else
+    {
+        if(st>=l&&r>=end)
+        {
+            return t[node];
+        }
+        else
+        {
+            int m=(st+end)/2;
+            
+            if(p==1)
+            return min( query(t,2*node+1,st,m,l,r,1), query(t,2*node+2,m+1,end,l,r,1));
+            else
+            return max( query(t,2*node+1,st,m,l,r,2), query(t,2*node+2,m+1,end,l,r,2));
+        }
+    }
+}
+int main()
+{
+    int t[500000],t1[500000],a[100000],n;
+    int q,x,y,i;
+    cin>>n>>q;
+    for(i=0;i<n;i++)
+    cin>>a[i];
+    build(t,a,n,0,0,n-1,1);
+    build(t1,a,n,0,0,n-1,2);
+    while(q--)
+    {
+        cin>>x>>y;
+        //y--;
+        if(x==0)
+        {
+            int x1=query(t,0,0,n-1,y+1,n-1,1);
+            int x2=query(t1,0,0,n-1,0,y-1,2);
+            
+            if(x2<0)
+            cout<<"-1"<<" ";
+            else
+            cout<<x2<<" ";
+            
+            if(x1>=n)
+            cout<<"-1";
+            else
+            cout<<x1;
+            
+            cout<<endl;
+        }
+        else
+        {
+            if(a[y]==0){
+            up(t,a,0,0,n-1,y,1);
+            up(t1,a,0,0,n-1,y,2);
+            }
+        }
+    }
+}
