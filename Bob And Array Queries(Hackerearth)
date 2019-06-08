@@ -1,0 +1,106 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+long long t[3000000],a[500000],n;
+
+int count(int n)
+{
+    int c=0;
+    while(n)
+    {
+        c++;
+        n=n&(n-1);
+    }
+    return c;
+}
+void build(int node,int st,int end)
+{
+    if(st==end)
+    {
+        t[node]=count(a[st]);
+        return;
+    }
+    int m=(st+end)/2;
+    build(2*node+1,st,m);
+    build(2*node+2,m+1,end);
+    
+    t[node]=t[2*node+1]+t[2*node+2];
+}
+void update(int node,int st,int end,int x,int y)
+{
+    if(st==end)
+    {
+        if(x==1){
+        a[y]=2*a[y]+1;
+        t[node]++;
+        }
+        else
+        {
+            if(a[y]!=0)
+            {
+            if(a[y]%2!=0)
+            {
+                t[node]--;
+            }
+            a[y]/=2;
+            }
+        }
+    }
+    else
+    {
+        int m=(st+end)/2;
+        
+        if(y>=st&&y<=m)
+        {
+            update(2*node+1,st,m,x,y);
+        }
+        else
+        {
+             update(2*node+2,m+1,end,x,y);
+        }
+             
+        t[node]=t[2*node+1]+t[2*node+2];
+        
+    }
+}
+
+int query(int node,int st,int end,int l,int r)
+{
+    if(st>r||l>end)
+    return 0;
+    
+    if(l<=st&&r>=end)
+    return t[node];
+    
+    int m=(st+end)/2;
+    
+    return query(2*node+1,st,m,l,r)+query(2*node+2,m+1,end,l,r);
+}
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    int q,i,j,x,y;
+    cin>>n>>q;
+    for(i=0;i<n;i++)
+    {
+        a[i]=0;
+    }
+    build(0,0,n-1);
+    while(q--)
+    {
+        cin>>j;
+        if(j==3)
+        {
+            cin>>x>>y;
+            x--;y--;
+            cout<<query(0,0,n-1,x,y)<<endl;
+        }
+        else
+        {
+            cin>>x;
+            x--;
+            update(0,0,n-1,j,x);
+        }
+    }
+}
