@@ -1,0 +1,97 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+
+//BUILDING THE SEGMENT TREE
+
+
+void build(int t[],int a[],int node,int start,int end)
+{
+    if(start==end)
+    {
+        t[node]=a[start];
+    }
+    else
+    {
+    int m=(start+end)/2;
+    build(t,a,2*node,start,m);
+    build(t,a,2*node+1,m+1,end);
+    
+    t[node]=min(t[2*node+1],t[2*node]);
+    }
+}
+
+
+//UPDATING THE SEGMENT TREE
+
+
+void update(int t[],int a[],int node,int start,int end,int x,int y)
+{
+    if(start==end)
+    {
+        a[x]=y;
+        t[node]=y;
+    }
+    else
+    {
+    int mid=(start+end)/2;
+    
+    if(start<=x&&x<=mid)
+    {
+        update(t,a,2*node,start,mid,x,y);
+    }
+    else
+    update(t,a,2*node+1,mid+1,end,x,y);
+    
+    t[node]=min(t[2*node+1],t[2*node]);
+    }
+}
+
+
+//Query ON THE SEGMENT TREE
+
+
+int query(int t[],int a[],int node,int start,int end,int l,int r)
+{
+    if(start>r||end<l)
+    return INT_MAX;
+    
+    if(l<=start&&end<=r)
+    return t[node];
+    
+    int m=(start+end)/2;
+    
+    int p1=query(t,a,2*node,start,m,l,r) ;
+    int p2=query(t,a,2*node+1,m+1,end,l,r) ;
+    
+    return min(p1,p2);
+}
+
+
+
+int main()
+{
+    int n,q,i,j,y,z;
+    cin>>n>>q;
+    int a[100005],t[2000010];
+    for(i=1;i<=n;i++)
+    cin>>a[i];
+    build(t,a,1,1,n);
+    
+    
+    //for(i=0;i<(2*n)-1;i++)
+    //cout<<t[i]<<" ";
+    
+    while(q--)
+    {
+        char x;
+        cin>>x>>y>>z;
+        //y--;z--;
+        if(x=='q')
+        {
+            cout<<query(t,a,1,1,n,y,z)<<endl;
+        }
+        else
+        update(t,a,1,1,n,y,z);
+    }
+}
