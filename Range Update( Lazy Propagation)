@@ -1,0 +1,118 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+long long t[500005];
+long long lazy[500005];
+long long a[500005],n;
+
+void build(int node,int st,int end)
+{
+    if(st==end)
+    {
+        t[node]=a[st];
+        
+    }
+    else
+    {
+    int m=(st+end)/2;
+    build(2*node,st,m);
+    build(2*node+1,m+1,end);
+    
+    t[node]=min(t[2*node+1] , t[2*node]);
+    }
+}
+
+void  update(int node,int st,int end,int l,int r,int val)
+{
+    if(lazy[node]!=0)
+    {
+        t[node]+=lazy[node];
+        if(st!=end)
+        {
+            lazy[2*node]+=lazy[node];
+            lazy[2*node+1]+=lazy[node];
+        }
+        lazy[node]=0;
+    }
+    
+    if(st>end||st>r||l>end)
+    return;
+    
+    if(st>=l&&end<=r)
+    {
+        t[node]+=val;
+        if(st!=end)
+        {
+            lazy[2*node]+=val;
+            lazy[2*node+1]+=val;
+        }
+        return;
+    }
+    
+    int m=(st+end)/2;
+    
+    update(2*node,st,m,l,r,val);
+    update(2*node+1,m+1,end,l,r,val);
+    
+    t[node]=min(t[2*node+1],t[2*node]);
+    
+}
+
+long long query(int node,int st,int end,int l,int r)
+{
+    if(st>end||st>r||l>end)
+    return INT_MAX;
+    
+    if(lazy[node]!=0)
+    {
+        t[node]+=lazy[node];
+        
+        if(st!=end)
+        {
+            lazy[2*node]+=lazy[node];
+            lazy[2*node+1]+=lazy[node];
+        }
+        lazy[node]=0;
+    }
+    
+    if(st>=l&&end<=r)
+    return t[node];
+    
+    int m=(st+end)/2;
+    
+    long long p1=query(2*node,st,m,l,r);
+    long long p2=query(2*node+1,m+1,end,l,r);
+    return min(p1,p2);
+}
+int main()
+{
+    ios_base::sync_with_stdio(false);
+	cin.tie(0);
+    int n,q,x,y,z,i;
+    cin>>n>>q;
+    
+    for(i=1;i<=n;i++)
+    cin>>a[i];
+    
+    char ch;
+    
+    build(1,1,n);
+    
+    while(q--)
+    {
+        cin>>ch;
+        
+        if(ch=='q')
+        {
+            cin>>x>>y;
+            //x--;y--;
+            cout<<query(1,1,n,x,y)<<endl;
+        }
+        else
+        {
+            cin>>x>>y>>z;
+            //x--;y--;
+            update(1,1,n,x,y,z);
+        }
+    }
+}
